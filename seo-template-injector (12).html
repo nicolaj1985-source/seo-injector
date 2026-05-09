@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Template Injector — SEO Generator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;
+  --s1:#1a1d27;
+  --s2:#22253300;
+  --bd:#2e3244;
+  --bd2:#3d4260;
+  --tx:#e8eaf6;
+  --t2:#9198b8;
+  --t3:#565d7e;
+  --ac:#6c8fff;
+  --ac2:#a78bfa;
+  --gr:#34d399;
+  --rd:#f87171;
+  --am:#fbbf24;
+  --f:'Inter',sans-serif;
+}
+body{font-family:var(--f);background:var(--bg);color:var(--tx);font-size:13px;min-height:100vh}
+h1{font-size:20px;font-weight:700;letter-spacing:-.02em}
+a{color:var(--ac);text-decoration:none}
+
+/* ── Layout ── */
+.layout{max-width:1400px;margin:0 auto;padding:0 20px 100px}
+
+/* ── Header ── */
+.hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 0 24px;margin-bottom:28px;
+  border-bottom:1px solid var(--bd)
+}
+.hdr-logo{display:flex;align-items:center;gap:10px}
+.hdr-icon{
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,var(--ac),var(--ac2));
+  display:flex;align-items:center;justify-content:center;flex-shrink:0
+}
+.hdr-icon svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5}
+.hdr-sub{font-size:11px;color:var(--t3);margin-top:2px}
+.badge{
+  font-size:10px;font-weight:600;padding:3px 8px;
+  border-radius:99px;background:rgba(108,143,255,.15);
+  color:var(--ac);border:1px solid rgba(108,143,255,.25)
+}
+
+/* ── Grid ── */
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.span2{grid-column:1/-1}
+
+/* ── Cards ── */
+.card{
+  background:var(--s1);border:1px solid var(--bd);
+  border-radius:10px;overflow:hidden
+}
+.card-hd{
+  padding:11px 16px;border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,.02)
+}
+.card-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--t2)}
+.card-body{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+
+/* ── Fields ── */
+.field{display:flex;flex-direction:column;gap:5px}
+label{font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--t3)}
+input,textarea,select{
+  background:var(--bg);border:1px solid var(--bd);border-radius:6px;
+  color:var(--tx);font-family:var(--f);font-size:12px;
+  padding:8px 10px;width:100%;outline:none;
+  transition:border-color .15s,box-shadow .15s
+}
+input:focus,textarea:focus{border-color:var(--ac);box-shadow:0 0 0 2px rgba(108,143,255,.1)}
+input[type=password]{letter-spacing:.1em}
+input::placeholder,textarea::placeholder{color:var(--t3);font-size:11px}
+textarea{resize:vertical;line-height:1.55}
+
+/* ── Upload ── */
+.upload{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:8px;padding:24px 16px;border:2px dashed var(--bd);border-radius:8px;
+  cursor:pointer;transition:all .15s;text-align:center;width:100%
+}
+.upload:hover{border-color:var(--ac);background:rgba(108,143,255,.05)}
+.upload.ok{border-color:var(--gr);border-style:solid;background:rgba(52,211,153,.05)}
+.upload input{display:none}
+.upload svg{stroke:var(--t3);fill:none;stroke-width:1.5;stroke-linecap:round}
+.upload.ok svg{stroke:var(--gr)}
+.upload-label{font-size:12px;color:var(--t3)}
+.upload.ok .upload-label{color:var(--gr)}
+.upload-sub{font-size:10px;color:var(--t3)}
+
+/* ── City rows ── */
+.city-hdr{
+  display:grid;grid-template-columns:150px 1fr 32px;gap:8px;
+  padding-bottom:8px;border-bottom:1px solid var(--bd);margin-bottom:8px
+}
+.city-hdr span{font-size:10px;color:var(--t3);font-weight:500;text-transform:uppercase}
+#cityRows{display:flex;flex-direction:column;gap:6px}
+.city-row{display:grid;grid-template-columns:150px 1fr 32px;gap:6px;align-items:center}
+.rm-btn{
+  width:32px;height:32px;border:1px solid var(--bd);border-radius:6px;
+  background:none;cursor:pointer;color:var(--t3);
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;flex-shrink:0
+}
+.rm-btn:hover{border-color:var(--rd);color:var(--rd);background:rgba(248,113,113,.1)}
+.rm-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+.add-btn{
+  display:inline-flex;align-items:center;gap:6px;margin-top:8px;
+  padding:7px 12px;border:1px dashed var(--bd);border-radius:6px;
+  background:none;cursor:pointer;color:var(--t2);font-family:var(--f);
+  font-size:11px;font-weight:500;transition:all .15s
+}
+.add-btn:hover{border-color:var(--ac);color:var(--ac)}
+.add-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5}
+
+/* ── Tone pills ── */
+.tone-wrap{display:flex;flex-wrap:wrap;gap:6px}
+.tone-pill{
+  padding:5px 11px;border-radius:99px;border:1px solid var(--bd);
+  cursor:pointer;font-size:11px;font-weight:500;color:var(--t2);
+  background:none;transition:all .12s;user-select:none
+}
+.tone-pill:hover{border-color:var(--bd2);color:var(--tx)}
+.tone-pill input{display:none}
+.tone-pill.on{background:rgba(108,143,255,.15);border-color:var(--ac);color:var(--ac)}
+
+/* ── Chips ── */
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.chip{
+  font-size:10px;padding:3px 7px;border-radius:4px;cursor:pointer;
+  font-family:var(--f);font-weight:500;
+  border:1px solid var(--bd);color:var(--t2);background:var(--bg);
+  transition:all .12s
+}
+.chip:hover{border-color:var(--ac);color:var(--ac)}
+.chip.b{color:var(--ac);border-color:rgba(108,143,255,.3);background:rgba(108,143,255,.08)}
+.chip.g{color:var(--gr);border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.06)}
+.chip-lbl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;display:block}
+
+/* ── Status dot ── */
+.dot{width:6px;height:6px;border-radius:50%;background:var(--bd2);flex-shrink:0}
+.dot.ok{background:var(--gr)}
+.dot.warn{background:var(--am)}
+.row{display:flex;align-items:center;gap:8px}
+
+/* ── Info box ── */
+.info{
+  background:rgba(108,143,255,.06);border:1px solid rgba(108,143,255,.15);
+  border-radius:6px;padding:10px 12px;font-size:11px;color:var(--ac);line-height:1.6
+}
+.info strong{display:block;margin-bottom:2px;font-weight:600}
+code{background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px;font-size:10px}
+
+/* ── Generate button ── */
+.gen-btn{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;padding:14px;border-radius:8px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--ac),var(--ac2));
+  color:#fff;font-family:var(--f);font-size:14px;font-weight:700;
+  box-shadow:0 4px 20px rgba(108,143,255,.3);
+  transition:opacity .15s,transform .1s;letter-spacing:-.01em
+}
+.gen-btn:hover{opacity:.9;transform:translateY(-1px)}
+.gen-btn:active{transform:translateY(0)}
+.gen-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.gen-btn svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5}
+
+/* ── Log ── */
+.log{
+  background:var(--bg);border:1px solid var(--bd);border-radius:6px;
+  padding:10px 12px;font-size:11px;line-height:1.9;
+  max-height:160px;overflow-y:auto;
+  font-family:'Menlo','Consolas',monospace
+}
+.log-ok{color:var(--gr)}
+.log-info{color:var(--ac)}
+.log-err{color:var(--rd)}
+.log-muted{color:var(--t3)}
+
+/* ── Progress ── */
+.prog{height:3px;background:var(--bd);border-radius:99px;overflow:hidden;display:none;margin-top:8px}
+.prog.on{display:block}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));width:0;transition:width .3s}
+
+/* ── Status bar ── */
+.statusbar{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--s1);border-top:1px solid var(--bd);
+  padding:10px 20px;display:flex;align-items:center;gap:12px;z-index:50
+}
+.status-txt{flex:1;font-size:12px;color:var(--t2)}
+.status-txt.ok{color:var(--gr)}
+.status-txt.err{color:var(--rd)}
+
+@media(max-width:900px){.grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.grid{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- Header -->
+<div class="hdr">
+  <div class="hdr-logo">
+    <div class="hdr-icon">
+      <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+    </div>
+    <div>
+      <h1>Template Injector</h1>
+      <div class="hdr-sub">SEO Site Generator · Gemini 2.5 Flash · To-kald arkitektur · JSZip</div>
+    </div>
+  </div>
+  <span class="badge">v3.0</span>
+</div>
+
+<div class="grid">
+
+<!-- ── Kolonne 1 ── -->
+<div style="display:flex;flex-direction:column;gap:16px">
+
+  <!-- Virksomhed -->
+  <div class="card">
+    <div class="card-hd"><span class="card-title">1 · Virksomhed</span><div class="row"><div class="dot warn" id="dot-virk"></div></div></div>
+    <div class="card-body">
+      <div class="grid2">
+        <div class="field"><label>Virksomhedsnavn</label><input id="bizName" placeholder="Hansen Maler ApS" oninput="updateDots()"></div>
+        <div class="field"><label>Hoved Service</label><input id="mainService" placeholder="facaderenovering" oninput="updateDots()"></div>
+        <div class="field"><label>Telefon</label><input id="phone" placeholder="+45 00 00 00 00"></div>
+        <div class="field"><label>CTA Link</label><input id="ctaLink" placeholder="https://..."></div>
+        <div class="field"><label>Geografisk Område</label><input id="geoArea" placeholder="Midt- og Sydsjælland"></div>
+        <div class="field"><label>Forside Keyword</label><input id="homepageKeyword" placeholder="facaderenovering Køge"></div>
+      </div>
+      <div class="field"><label>Slogan</label><input id="slogan" placeholder="Din lokale maler — altid til tiden"></div>
+      <div class="field"><label>Virksomhedens styrker</label><input id="strengths" placeholder="20 års erfaring, 24/7, fast pris, certificerede håndværkere"></div>
+    </div>
+  </div>
+
+  <!-- Sociale medier -->
+  <div class="card">
+    <div class="card-hd"><span class="card-title">2 · Sociale Medier</span><span style="font-size:10px;color:var(--t3)">Valgfri</span></div>
+    <div class="card-body">
+      <div class="grid2">
+        <div class="field"><label>Facebook</label><input id="fbLink" placeholder="https://facebook.com/..."></div>
+        <div class="field"><label>Instagram</label><input id="instagramLink" placeholder="https://instagram.com/..."></div>
+        <div class="field"><label>YouTube</label><input id="youtubeLink" placeholder="https://youtube.com/@..."></div>
+        <div class="field"><label>WhatsApp</label><input id="whatsappLink" placeholder="+45 00 00 00 00"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tekster til AI -->
+  <div class="card">
+    <div class="card-hd"><span class="card-title">3 · Tekster til AI</span><span style="font-size:10px;color:var(--t3)">Anbefalet</span></div>
+    <div class="card-body">
+      <div class="field"><label>Tekst fra forsiden</label><textarea id="frontpageText" style="min-height:80px" placeholder="Hero-tekst, ydelsesliste, slogans — AI trækker fakta herfra"></textarea></div>
+      <div class="field"><label>Tekst fra Om os</label><textarea id="aboutText" style="min-height:80px" placeholder="Erfaring, værdier, certifikater, arbejdsmetode"></textarea></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Kolonne 2 ── -->
+<div style="display:flex;flex-direction:column;gap:16px">
+
+  <!-- Byer -->
+  <div class="card">
+    <div class="card-hd"><span class="card-title">4 · Byer &amp; Lokalområder</span><div class="dot warn" id="dot-byer"></div></div>
+    <div class="card-body">
+      <div class="city-hdr">
+        <span>Hovedby</span><span>Underbyer (kommasepareret)</span><span></span>
+      </div>
+      <div id="cityRows"></div>
+      <button class="add-btn" onclick="addCity()">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Tilføj by (maks 10)
+      </button>
+    </div>
+  </div>
+
+  <!-- Services -->
+  <div class="card">
+    <div class="card-hd"><span class="card-title">5 · Services</span><div class="dot warn" id="dot-svc"></div></div>
+    <div class="card-body">
+      <div class="field">
+        <label>Én service per linje</label>
+        <textarea id="servicesList" style="min-height:160px" placeholder="Maling af facade&#10;Maling af interiør&#10;Spartling&#10;Loftsmaling&#10;Facaderenovering&#10;Tagmaling" oninput="updateDots()"></textarea>
+      </div>
+      <div class="info">Forside → <code>index.html</code> · Services → <code>maling-af-facade.html</code><br>æ→ae · ø→oe · å→aa</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Kolonne 3 ── -->
+<div style="display:flex;flex-direction:column;gap:16px">
+
+  <!-- Template upload -->
+  <div class="card">
+    <div class="card-hd"><span class="card-title">6 · Template</span><div class="row"><div class="dot warn" id="dot-tmpl"></div></div></div>
+    <div class="card-body">
+      <label class="upload" id="uploadZone">
+        <svg width="24" height="24" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span class="upload-label" id="uploadZoneTxt">Klik eller slip .html-fil her</span>
+        <span class="upload-sub">Kun .html filer</span>
+        <input type="file" id="templateFile" accept=".html" onchange="handleUpload(event)">
+      </label>
+      <div>
+        <span class="chip-lbl">Build-time placeholders (klik for at kopiere)</span>
+        <div class="chips">
+          <span class="chip b" onclick="copyChip('{{PAGE_TITLE}}')">{{PAGE_TITLE}}</span>
+          <span class="chip b" onclick="copyChip('{{intro}}')">{{intro}}</span>
+          <span class="chip" onclick="copyChip('{{business_name}}')">{{business_name}}</span>
+          <span class="chip" onclick="copyChip('{{slogan}}')">{{slogan}}</span>
+          <span class="chip" onclick="copyChip('{{area}}')">{{area}}</span>
+          <span class="chip" onclick="copyChip('{{hero_cities}}')">{{hero_cities}}</span>
+          <span class="chip" onclick="copyChip('{{worst_case_header}}')">{{worst_case_header}}</span>
+          <span class="chip" onclick="copyChip('{{process_items}}')">{{process_items}}</span>
+          <span class="chip" onclick="copyChip('{{faq_items}}')">{{faq_items}}</span>
+          <span class="chip" onclick="copyChip('{{Main_city1}}')">{{Main_city1}}</span>
+        </div>
+        <span class="chip-lbl" style="margin-top:8px">Runtime CSS-klasser (card.json)</span>
+        <div class="chips">
+          <span class="chip g" onclick="copyChip('cfg-bizName')">cfg-bizName</span>
+          <span class="chip g" onclick="copyChip('cfg-ctaLink')">cfg-ctaLink</span>
+          <span class="chip g" onclick="copyChip('cfg-phone')">cfg-phone</span>
+          <span class="chip g" onclick="copyChip('cfg-fbLink')">cfg-fbLink</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI & Gemini -->
+  <div class="card">
+    <div class="card-hd"><span class="card-title">7 · AI — Gemini 2.5 Flash</span><div class="dot warn" id="dot-ai"></div></div>
+    <div class="card-body">
+      <div class="info">
+        <strong>Gratis nøgle på aistudio.google.com</strong>
+        Uden nøgle = Dummy Mode (placeholder-tekst). Med nøgle = live indhold via to-kald arkitektur.
+      </div>
+      <div class="field"><label>Gemini API Key</label><input type="password" id="geminiKey" placeholder="AIzaSy..." oninput="updateDots()"></div>
+      <div class="field">
+        <label>Tone &amp; skrivestil</label>
+        <div class="tone-wrap" id="toneGrid">
+          <label class="tone-pill" data-v="professionel og venlig, uden teknisk jargon"><input type="checkbox">Professionel og venlig</label>
+          <label class="tone-pill" data-v="direkte og tillidsfuld — konkret fra første sætning"><input type="checkbox">Direkte og tillidsfuld</label>
+          <label class="tone-pill" data-v="7th grade reading level — korte sætninger, enkle ord"><input type="checkbox">7th grade level</label>
+          <label class="tone-pill" data-v="lokal og nærværende — som en håndværker der kender området"><input type="checkbox">Lokal og nærværende</label>
+          <label class="tone-pill" data-v="autoritativ og ekspert — faglig dybde"><input type="checkbox">Autoritativ ekspert</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Output -->
+  <div class="card">
+    <div class="card-hd"><span class="card-title">8 · Output</span></div>
+    <div class="card-body">
+      <div class="field"><label>ZIP-filnavn (valgfri)</label><input id="zipName" placeholder="mit-site — automatisk hvis tomt"></div>
+      <button class="gen-btn" id="genBtn" onclick="run()">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download ZIP
+      </button>
+      <div class="prog" id="prog"><div class="prog-fill" id="progFill"></div></div>
+      <div class="log" id="logBox"><span class="log-muted">› Klar til at generere...</span></div>
+    </div>
+  </div>
+
+</div>
+</div><!-- /grid -->
+</div><!-- /layout -->
+
+<!-- Status bar -->
+<div class="statusbar">
+  <div class="status-txt" id="statusMsg">Upload template · Udfyld felter · Klik Download ZIP</div>
+</div>
+
+<script>
+// ── State ──
+let tmpl = '';
+let cityN = 0;
+const tones = [];
+
+// ── Slugify ──
+function slug(t){
+  return t.toString().toLowerCase()
+    .replace(/æ/g,'ae').replace(/ø/g,'oe').replace(/å/g,'aa')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .trim().replace(/[^a-z0-9\s-]/g,'')
+    .replace(/[\s_-]+/g,'-').replace(/^-+|-+$/g,'');
+}
+
+// ── Upload ──
+function handleUpload(e){
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    tmpl = ev.target.result;
+    const z = document.getElementById('uploadZone');
+    const t = document.getElementById('uploadZoneTxt');
+    z.classList.add('ok');
+    t.textContent = '✓ ' + f.name;
+    addLog('Template indlæst: ' + f.name + ' (' + Math.round(f.size/1024) + ' KB)', 'ok');
+    updateDots();
+  };
+  r.readAsText(f,'UTF-8');
+}
+
+// Drag-drop
+(function(){
+  const z = document.getElementById('uploadZone');
+  z.addEventListener('dragover', function(e){ e.preventDefault(); z.style.borderColor='var(--ac)'; });
+  z.addEventListener('dragleave', function(){ z.style.borderColor=''; });
+  z.addEventListener('drop', function(e){
+    e.preventDefault(); z.style.borderColor='';
+    const f = e.dataTransfer.files[0];
+    if(f && f.name.endsWith('.html')){
+      const inp = document.getElementById('templateFile');
+      const dt = new DataTransfer(); dt.items.add(f); inp.files = dt.files;
+      handleUpload({target:{files:[f]}});
+    }
+  });
+})();
+
+// ── Cities ──
+function addCity(){
+  if(cityN >= 10) return;
+  cityN++;
+  const n = cityN;
+  const wrap = document.getElementById('cityRows');
+  const row = document.createElement('div');
+  row.className='city-row'; row.id='cr'+n;
+  row.innerHTML = '<input id="mc' + n + '" placeholder="fx Roskilde">' +
+    '<input id="st' + n + '" placeholder="fx Jyllinge, Viby Sjælland">' +
+    (n > 1 ? '<button class="rm-btn" onclick="rmCity(' + n + ')"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>' : '<span></span>');
+  wrap.appendChild(row);
+  updateDots();
+}
+function rmCity(n){ const r=document.getElementById('cr'+n); if(r) r.remove(); updateDots(); }
+function getCities(){
+  const out=[];
+  for(let i=1;i<=10;i++){
+    const m=document.getElementById('mc'+i);
+    const s=document.getElementById('st'+i);
+    if(!m) continue;
+    const main=m.value.trim(); if(!main) continue;
+    out.push({main, sub: s ? s.value.trim() : ''});
+  }
+  return out;
+}
+
+// ── Tone ──
+document.getElementById('toneGrid').querySelectorAll('.tone-pill').forEach(function(l){
+  l.addEventListener('click', function(){
+    const cb = l.querySelector('input'); cb.checked = !cb.checked;
+    const v = l.dataset.v;
+    if(cb.checked){ l.classList.add('on'); if(!tones.includes(v)) tones.push(v); }
+    else { l.classList.remove('on'); const i=tones.indexOf(v); if(i>-1) tones.splice(i,1); }
+  });
+});
+function getTone(){ return tones.length ? tones.join(' + ') : 'professionel og venlig'; }
+
+// ── Helpers ──
+function copyChip(t){ navigator.clipboard.writeText(t).catch(function(){}); }
+function g(id){ const e=document.getElementById(id); return e ? e.value.trim() : ''; }
+
+function addLog(msg, type){
+  type = type || 'info';
+  const box = document.getElementById('logBox');
+  if(box.querySelector('.log-muted')) box.innerHTML = '';
+  const d = document.createElement('div');
+  d.className = 'log-' + type;
+  d.textContent = '› ' + msg;
+  box.appendChild(d); box.scrollTop = box.scrollHeight;
+}
+function clearLog(){ document.getElementById('logBox').innerHTML = ''; }
+
+function updateDots(){
+  const biz = g('bizName'); const svc = g('mainService'); const key = g('geminiKey');
+  const svcs = g('servicesList').split('\n').filter(function(s){ return s.trim(); });
+  const cities = getCities();
+  const setDot = function(id, ok){ const d=document.getElementById(id); if(d){ d.className='dot '+(ok?'ok':'warn'); } };
+  setDot('dot-virk', !!(biz && svc));
+  setDot('dot-ai',   !!key);
+  setDot('dot-tmpl', !!tmpl);
+  setDot('dot-svc',  svcs.length > 0);
+  setDot('dot-byer', cities.length > 0);
+}
+
+function buildPhase1Prompt(service, city, sub) {
+  const brand     = g('bizName')       || '[BRAND]';
+  const area      = g('geoArea')       || '[OMRÅDE]';
+  const strengths = g('strengths')     || '[STYRKER]';
+  const tone      = getTone();
+  const forside   = g('frontpageText') || 'ikke tilgængelig';
+  const omos      = g('aboutText')     || 'ikke tilgængelig';
+
+  // Saml ALLE byer til analysen
+  const cities    = getCities();
+  const allCities = cities.map(c => c.main).filter(Boolean).join(', ') || city;
+  const allSubs   = cities.map(c => c.sub).filter(Boolean).join(', ') || sub;
+
+  return `Du er en senior SEO-tekstforfatter og lokal markedsstrateg.
+
+VARIABLER:
+  SERVICE              = ${service}
+  BRAND_NAME           = ${brand}
+  ALLE HOVEDBYER       = ${allCities}
+  PRIMÆR HOVEDBY       = ${city}
+  UNDERBYER            = ${allSubs}
+  GEOGRAFISK_OMRÅDE    = ${area}
+  TONE                 = ${tone}
+  UNIQUE_STRENGTHS     = ${strengths}
+
+  TEKST_FORSIDE:
+${forside}
+
+  TEKST_OM_OS:
+${omos}
+
+=======================================================
+  FASE 1 — LOKAL ANALYSE
+=======================================================
+
+Du er en senior SEO-tekstforfatter og lokal markedsstrateg.
+Inden du skriver et eneste ord af selve indholdet, skal du besvare
+nedenstående 8 spørgsmål meget kortfattet (3-5 punkter per spørgsmål).
+Analysen bruges til at tune indholdet præcist til ALLE HOVEDBYER: ${allCities}.
+
+Brug TEKST_FORSIDE og TEKST_OM_OS til at forstå virksomhedens
+tone, værdier, arbejdsmetode og eventuelle certifikater eller
+referencer — træk konkrete detaljer ind i analysen frem for
+generiske antagelser.
+
+ANALYSE-SPØRGSMÅL (besvar for ALLE byer: ${allCities}):
+
+1. Specifik geografi
+   Hvilke kvarterer, forstæder eller lokale steder i ${allCities}
+   er relevante for ${service}? (fx boligtyper, industrikvarterer,
+   ældre bygninger, nybyggeri)
+
+2. Lokal særegenhed
+   Hvad er specifikt ved ${allCities} og omegn, der gør ${service}
+   særlig relevant eller udfordrende her? (klima, byggestil, demografi)
+
+3. Lokale smertepunkter
+   Hvilke konkrete problemer og frustrationer møder kunder i
+   ${allCities}, inden de bestiller ${service}?
+
+4. Søgeintention
+   Hvad leder folk i ${allCities} præcist efter, når de googler
+   ${service}? Hvad er det egentlige behov bag søgningen?
+
+5. Lokale ankerpunkter
+   Er der kendte steder, events, institutioner eller kendetegn i
+   ${allCities}, vi naturligt kan nævne for at signalere lokal
+   tilstedeværelse?
+
+6. Kundeprofil
+   Hvem er den typiske kunde i ${allCities}? (alder, boligtype,
+   ejerskab vs. leje, erhverv, situation)
+
+7. Troværdighedsbevis
+   Hvad overbeviser en kunde i ${allCities} om, at ${brand}
+   er det rigtige valg? (certifikater, anmeldelser, lokale
+   referencer, garantier, synlighed)
+
+8. Drømmescenarie — 5 ønskede outcomes
+   Hvad er kundens drømmescenarie, efter ${service} er udført?
+   List 5 konkrete outcomes de ønsker (ikke ydelsen — resultatet).
+
+KRITISK OUTPUT FORMAT:
+Returner KUN et gyldigt JSON-objekt. INGEN markdown, INGEN forklaring.
+Start med { og slut med }. Alle strings på én linje uden linjeskift.
+
+{"geografi":"3-5 konkrete kvarterer og boligtyper i ${allCities} relevante for ${service}","lokal_saeregen":"3-5 punkter om hvad der er specifikt ved ${allCities} ift. ${service} — klima, byggestil, demografi","smertepunkter":"3-5 konkrete problemer og frustrationer kunder i ${allCities} oplever inden de bestiller ${service}","soegeintention":"3-5 punkter om hvad folk i ${allCities} egentlig søger efter bag googlesøgningen ${service}","ankerpunkter":"3-5 kendte steder, institutioner eller kendetegn i ${allCities} vi kan nævne naturligt","kundeprofil":"Præcis beskrivelse af den typiske kunde i ${allCities} — alder, boligtype, situation","trovaerdighed":"3-5 konkrete argumenter for ${brand} baseret på TEKST_FORSIDE og TEKST_OM_OS — ingen opdigtede påstande","droemmescenarier":["Konkret outcome 1 efter ${service} er udført","Konkret outcome 2","Konkret outcome 3","Konkret outcome 4","Konkret outcome 5"]}`;
+}
+
+
+function buildPhase2Prompt(service, city, sub, analyse) {
+  const brand     = g('bizName')       || '[BRAND]';
+  const area      = g('geoArea')       || '[OMRÅDE]';
+  const strengths = g('strengths')     || '[STYRKER]';
+  const tone      = getTone();
+  const forside   = g('frontpageText') || 'ikke tilgængelig';
+  const omos      = g('aboutText')     || 'ikke tilgængelig';
+  const cities    = getCities();
+  const allCities = cities.map(c => c.main).filter(Boolean).join(', ') || city;
+  const allSubs   = cities.map(c => c.sub).filter(Boolean).join(', ') || sub;
+
+  return `Du er en senior SEO-tekstforfatter med speciale i lokale servicebrancher.
+
+VARIABLER:
+  SERVICE              = ${service}
+  BRAND_NAME           = ${brand}
+  ALLE HOVEDBYER       = ${allCities}
+  PRIMÆR HOVEDBY       = ${city}
+  UNDERBYER            = ${allSubs}
+  GEOGRAFISK_OMRÅDE    = ${area}
+  TONE                 = ${tone}
+  UNIQUE_STRENGTHS     = ${strengths}
+
+LOKAL ANALYSE FRA FASE 1 (brug aktivt i alt indhold):
+  Geografi:         ${analyse.geografi || ''}
+  Lokal særegenhed: ${analyse.lokal_saeregen || ''}
+  Smertepunkter:    ${analyse.smertepunkter || ''}
+  Søgeintention:    ${analyse.soegeintention || ''}
+  Ankerpunkter:     ${analyse.ankerpunkter || ''}
+  Kundeprofil:      ${analyse.kundeprofil || ''}
+  Troværdighed:     ${analyse.trovaerdighed || ''}
+  Drømmescenarier:  ${(analyse.droemmescenarier||[]).join(' | ')}
+
+  TEKST_FORSIDE:
+${forside}
+
+  TEKST_OM_OS:
+${omos}
+
+=======================================================
+  FASE 2 — INDHOLDSGENERERING
+=======================================================
+
+ROLLE OG KONTEKST:
+Du er en senior SEO-tekstforfatter med speciale i lokale
+servicebrancher. Dit mål: Skriv en lokationsside for ${brand}
+der dækker ${allCities}, og rangerer #1 på Google for ${service}
+OG konverterer besøgende til kunder.
+
+Sproget er dansk. Tone: ${tone}.
+Brug din analyse fra Fase 1 som faktuel og lokal fundament.
+Brug TEKST_FORSIDE og TEKST_OM_OS aktivt — træk konkrete
+formuleringer og fakta derfra ind, men omskriv dem.
+
+SKRIVEREGLER (må ikke brydes):
+- Letlæseligt dansk uden teknisk jargon
+- Konsekvent vi/du-sprog
+- Ingen throwaway-åbninger: "I dagens samfund", "Er du på udkig efter"
+- Ingen throwaway-lukninger: "Til sidst", "Sammenfattende"
+- Forbudte AI-floskler: løfte, revolutionere, game-changer,
+  holistisk, synergi, udnytte potentialet, navigere kompleksiteten
+- Maks 2-3 sætninger per afsnit
+- Konkret frem for abstrakt
+- Ingen gentagelse af sidetitel i første linje
+- Ingen påstande uden belæg
+- Underbyer (${allSubs}) KUN i brødtekst når geografisk naturligt
+- Bynavne ALDRIG i H2-overskrifter
+
+BRAND-POSITIONERING:
+- ${brand} positioneres som det trygge, lokalt forankrede valg
+- Reelle styrker: ${strengths}
+- Brug fakta fra TEKST_FORSIDE og TEKST_OM_OS — ingen opdigtede påstande
+- Nævn ${brand} naturligt i mindst 2 sektioner udover intro
+
+=======================================================
+  KRITISK OUTPUT FORMAT
+=======================================================
+
+Returner KUN et gyldigt JSON-objekt. INGEN markdown, INGEN forklaring.
+Start med { og slut med }. Alle strings på én linje uden linjeskift.
+
+INDHOLDSKRAV per felt:
+- intro: PRÆCIS 25-35 ord. Nævn ${service} direkte. Start med kundens problem. Ingen bynavne. Ingen restatement af sidetitel.
+- worst_case_header: UPPERCASE, maks 9 ord, ingen bynavne
+- worst_case_description: 3-4 sætninger, konkret og ærlig, ikke skræmmende, maks 35 ord per sætning
+- process_items: 7-12 trin. Format: "**Fed header** — Beskrivelse 25-35 ord" — bindestreg IKKE kolon, ingen nummerering
+- dream_header1/2/3: UPPERCASE, maks 7 ord, ingen bynavne
+- dream_description1/2/3: PRÆCIS 3 sætninger á 25-35 ord hver
+- faq: ALTID 5-7 spørgsmål. Svar er 2-4 sætninger, konkrete, ingen store løfter. Min. 2 spørgsmål om pris/forventninger
+- grunde_titel: ingen bynavne, vælg "3 grunde til at få ${service}" eller "3 tegn på at du har brug for ${service}"
+- grund titler: fed, 3-5 ord, ingen bynavne, ingen verber som "udnyt" eller "oplev"
+- grund tekster: 2-3 sætninger konkret og ærlig, underbyer kun hvis naturligt
+
+JSON-STRUKTUR (følg præcist):
+{"before_page_title":"Kort label 2-4 ord over H1 fx Lokal ekspert i eller Professionel — ingen bynavn","intro":"PRÆCIS 25-35 ord. Kundens konkrete problem med ${service}. Nævn ${service} direkte. Ingen bynavne. Ingen restatement af titlen.","worst_case_before_header":"Kort eyebrow 2-4 ord til worst-case sektionen fx Konsekvensen er","worst_case_header":"HVAD SKER DER NÅR DU UDSÆTTER ${service} — UPPERCASE INGEN BYNAVN MAX 9 ORD","worst_case_description":"3-4 sætninger. Konkret konsekvens. Ikke skræmmende. Brug smertepunkter fra Fase 1.","process_header":"Vores proces med ${service}","process_items":["**Trin 1 header** — Beskrivelse 25-35 ord konkret om hvad der sker og hvad kunden oplever","**Trin 2 header** — Beskrivelse 25-35 ord","**Trin 3 header** — Beskrivelse 25-35 ord","**Trin 4 header** — Beskrivelse 25-35 ord","**Trin 5 header** — Beskrivelse 25-35 ord","**Trin 6 header** — Beskrivelse 25-35 ord","**Trin 7 header** — Beskrivelse 25-35 ord om hvad der sker EFTER arbejdet"],"dream_big_before_header":"Kort eyebrow 2-4 ord fx Forestil dig","dream_big_header":"Overordnet drømmescenarie sætning fx Sådan ser det ud når arbejdet er gjort — ingen bynavne","dream_header1":"DRØMMESCENARIE 1 UPPERCASE MAX 7 ORD INGEN BYNAVN","dream_description1":"Sætning 1 på 25-35 ord konkret outcome. Sætning 2 på 25-35 ord uddyber. Sætning 3 på 25-35 ord afslutter med følelse.","dream_header2":"DRØMMESCENARIE 2 UPPERCASE MAX 7 ORD INGEN BYNAVN","dream_description2":"Sætning 1 på 25-35 ord. Sætning 2 på 25-35 ord. Sætning 3 på 25-35 ord.","dream_header3":"DRØMMESCENARIE 3 UPPERCASE MAX 7 ORD INGEN BYNAVN","dream_description3":"Sætning 1 på 25-35 ord. Sætning 2 på 25-35 ord. Sætning 3 på 25-35 ord.","faq":[{"q":"Konkret spørgsmål 1 om ${service} ingen bynavn?","a":"2-4 sætninger konkret og ærligt."},{"q":"Hvad koster ${service}?","a":"Ærligt konkret svar om pris — ingen store løfter."},{"q":"Spørgsmål 3 ingen bynavn?","a":"2-4 sætninger."},{"q":"Spørgsmål 4 ingen bynavn?","a":"2-4 sætninger."},{"q":"Hvad tager ${service} af tid?","a":"Konkret tidsestimat."},{"q":"Hvad kan jeg forvente under arbejdet?","a":"2-4 sætninger ærligt om processen."},{"q":"Er ${brand} forsikret og erfaren?","a":"Konkrete fakta fra TEKST_OM_OS — ingen opdigtede påstande."}],"grunde_before_titel":"Kort eyebrow 2-4 ord fx Hvorfor vælge os","grunde_titel":"3 grunde til at få ${service} ELLER 3 tegn på at du har brug for ${service}","grund1_titel":"Titel 3-5 ord ingen bynavn","grund1_tekst":"2-3 konkrete sætninger med fakta fra analysen eller TEKST_FORSIDE.","grund2_titel":"Titel 3-5 ord","grund2_tekst":"2-3 konkrete sætninger.","grund3_titel":"Titel 3-5 ord","grund3_tekst":"2-3 konkrete sætninger.","area_we_cover_description":"1-2 sætninger der naturligt introducerer at vi dækker ${area}. Ingen bynavne i sætningerne."}`;
+}
+
+
+async function geminiCall(prompt) {
+  const key = g('geminiKey');
+  const endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + encodeURIComponent(key);
+  let res;
+  try {
+    res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.7, maxOutputTokens: 16384 },
+        safetySettings: [
+          { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_HATE_SPEECH',       threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',  threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT',  threshold: 'BLOCK_NONE' }
+        ]
+      })
+    });
+  } catch(e) { throw new Error('Netværksfejl: ' + e.message); }
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.error?.message || 'Gemini HTTP ' + res.status);
+  }
+  const data = await res.json();
+  const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  const clean = raw.replace(/^```json?\s*/i, '').replace(/```\s*$/m, '').trim();
+  try { return JSON.parse(clean); }
+  catch(e) {
+    const m = clean.match(/\{[\s\S]*\}/);
+    if (m) { try { return JSON.parse(m[0]); } catch(e2) {} }
+    addLog('JSON parse fejl: ' + clean.slice(0,300), 'err');
+    throw new Error('Gemini returnerede ikke gyldigt JSON. Prøv igen.');
+  }
+}
+
+
+async function callGemini(service, city, sub) {
+  const key = g('geminiKey');
+
+  // ── DUMMY MODE ──
+  if (!key) {
+    const cities    = getCities();
+    const cityNames = cities.map(c => c.main).filter(Boolean);
+    const heroCities = cityNames.length ? cityNames.join(' \u2022 ') : 'By1 \u2022 By2 \u2022 By3';
+    return {
+      before_page_title: 'Lokal ekspert i',
+      intro: `Har du brug for ${service}? Afskallet maling og revner i muren er mere end et kosmetisk problem — det er din facades forsvar mod vind og vejr der er ved at svigte.`,
+      hero_cities: heroCities, cover_cities: heroCities,
+      worst_case_header: `N\u00C5R DU UDS\u00C6TTER ${service.toUpperCase()}`,
+      worst_case_description: `Uden ${service} fortsætter skaderne med at udvikle sig under overfladen. Fugt og frost arbejder sig ind i murværket og gør reparationen markant dyrere for hvert år der går. Det der i dag er en overfladisk opgave, kan om få år kræve en fuld renovering.`,
+      process_header: `Vores proces med ${service}`,
+      process_items: [
+        `**F\u00f8rste kontakt** \u2014 Du ringer eller skriver, og vi lytter til din situation uden at stille unødvendige krav til hvad du ved p\u00e5 forhånd.`,
+        `**Gratis besigtigelse** \u2014 Vi kommer ud til dig og vurderer opgaven p\u00e5 stedet. Du f\u00e5r en ærlig vurdering uden forpligtelse.`,
+        `**Klart og fast tilbud** \u2014 Du modtager et gennemsigtigt tilbud inden for 24 timer. Ingen skjulte poster, ingen overraskelser i fakturaen.`,
+        `**Planlægning** \u2014 Vi aftaler en startdato der passer din hverdag. Vi er fleksible og holder os til det aftalte tidspunkt.`,
+        `**Forberedelse** \u2014 Vi klarg\u00f8r fladen grundigt inden arbejdet g\u00e5r i gang. Det er her fundamentet for et holdbart resultat lægges.`,
+        `**Professionel udførelse** \u2014 Vi udfører ${service} med de rette materialer og metoder for dit hus og det lokale klima.`,
+        `**Kvalitetskontrol** \u2014 Vi gennemg\u00e5r arbejdet grundigt og sikrer at alt er som det skal v\u00e6re inden vi pakker sammen.`,
+        `**Opfølgning** \u2014 Vi kontakter dig efter 30 dage for at sikre at du er tilfreds og alt stadig ser godt ud.`
+      ],
+      dream_header1: `RESULTATER DER HOLDER I \u00C5REVIS`,
+      dream_description1: `Forestil dig at se på dit hjem og vide at facaden er beskyttet og smuk i mange år fremover. Du behøver ikke tænke på revner, afskallet maling eller fugtskader der breder sig. Det er en ro der er svær at sætte pris på — men let at mærke.`,
+      dream_header2: `RO I MAVEN OG FULD TRYGHED`,
+      dream_description2: `Du slipper for at bekymre dig om facadens tilstand og hvad det vil koste dig næste år. Arbejdet er udført af folk der kender forskel på en hurtig løsning og et holdbart resultat. Du kan slap af og bruge din energi på andet end vedligeholdelse.`,
+      dream_header3: `ET HJEM DU ER STOLT AF`,
+      dream_description3: `Naboer og g\u00e6ster bemærker det n\u00e5r dit hjem ser velholdt og pænt ud. Den følelse af at bo i noget der er gjort ordentligt er værd at investere i. Og det h\u00e6ver ganske enkelt v\u00e6rdien af din ejendom.`,
+      faq: [
+        {q:`Hvad er forskellen p\u00e5 ${service} og en almindelig maling?`, a:`${service} inkluderer typisk forberedelse, reparation af skadet underlag og brug af materialer der er egnet til det specifikke behov. En almindelig overmaling d\u00e6kker over problemerne — ${service} l\u00f8ser dem.`},
+        {q:`Hvad koster ${service}?`, a:`Prisen afh\u00e6nger af facadens st\u00f8rrelse, tilstand og hvilke materialer der er bedst egnet. Vi giver altid et fast tilbud inden vi starter, s\u00e5 du kender den præcise pris p\u00e5 forh\u00e5nd.`},
+        {q:`Hvorn\u00e5r p\u00e5 \u00e5ret er det bedst at f\u00e5 lavet ${service}?`, a:`Arbejdet kan udføres det meste af \u00e5ret, men undg\u00e5 frost og extrem varme. Forår og tidlig efterår er typisk ideelt. Vi r\u00e5dgiver dig om det bedste tidspunkt for netop dit hjem.`},
+        {q:`Hvor lang tid tager ${service}?`, a:`Det afh\u00e6nger af facadens omfang og kompleksitet. Vi giver dig et præcist tidsestimat i vores tilbud og holder os til den aftalte plan.`},
+        {q:`Bruger I materialer af h\u00f8j kvalitet?`, a:`Ja, vi v\u00e6lger altid materialer der er testet og egnet til det specifikke behov og det lokale klima. Det er en af grundene til at vores arbejde holder l\u00e6ngere.`},
+        {q:`Hvad sker der hvis jeg ikke er tilfreds?`, a:`Vi gennemg\u00e5r altid arbejdet med dig ved afleveringen. Hvis noget ikke er som aftalt, retter vi det. Vi er ikke f\u00e6rdige f\u00f8r du er tilfreds.`},
+        {q:`Er det n\u00f8dvendigt at forberede facaden inden I starter?`, a:`Vi klarg\u00f8r altid underlaget som en del af vores proces. Du beh\u00f8ver ikke g\u00f8re noget s\u00e6rligt — bare s\u00f8rg for at vi har adgang til facaden p\u00e5 startdagen.`}
+      ],
+      grunde_titel: `3 grunde til at f\u00e5 ${service}`,
+      grund1_titel: `Holdbart resultat`,
+      grund1_tekst: `Et professionelt udf\u00f8rt ${service} holder markant l\u00e6ngere end en hurtig løsning. Det betyder f\u00e6rre vedligeholdelsesomkostninger og et hjem der ser godt ud i \u00e5revis.`,
+      grund2_titel: `Beskyttelse mod skader`,
+      grund2_tekst: `Facaden er dit hjems vigtigste skjold mod vind, vejr og fugt. N\u00e5r den er i orden, undg\u00e5r du de dyre følgeskader der opstår n\u00e5r vand trænger ind i murv\u00e6rket.`,
+      grund3_titel: `Mere v\u00e6rd for pengene`,
+      grund3_tekst: `Et velholdt og pænt hjem er simpelthen mere v\u00e6rd. B\u00e5de n\u00e5r du bor der og n\u00e5r du p\u00e5 et tidspunkt vælger at s\u00e6lge.`
+    };
+  }
+
+  // ── FASE 1: Lokal analyse ──
+  addLog('  \u2192 Fase 1: lokal analyse af ' + city + '...', 'info');
+  const analyse = await geminiCall(buildPhase1Prompt(service, city, sub));
+  addLog('  \u2192 Fase 1 f\u00e6rdig \u2713', 'ok');
+
+  // ── FASE 2: Indholdsgenerering ──
+  addLog('  \u2192 Fase 2: genererer indhold...', 'info');
+  const indhold = await geminiCall(buildPhase2Prompt(service, city, sub, analyse));
+  addLog('  \u2192 Fase 2 f\u00e6rdig \u2713', 'ok');
+
+  // Tilf\u00f8j hero_cities og cover_cities
+  const cities    = getCities();
+  const cityNames = cities.map(c => c.main).filter(Boolean);
+  const cityStr   = cityNames.length ? cityNames.join(' \u2022 ') : '';
+  indhold.hero_cities  = indhold.hero_cities  || cityStr;
+  indhold.cover_cities = indhold.cover_cities || cityStr;
+
+  return indhold;
+}
+
+function injectTemplate(html, vars, ai) {
+  let o = html;
+
+  // ── Basis-placeholders ──
+  o = o.replace(/{{PAGE_TITLE}}/g,            vars.pageTitle  || '');
+  o = o.replace(/{{business_name}}/g,         vars.bizName    || '');
+  o = o.replace(/{{main-service_and_area}}/g, vars.svcArea    || '');
+  o = o.replace(/{{area}}/g,                  vars.area       || '');
+  o = o.replace(/{{slogan}}/g,                vars.slogan     || '');
+  o = o.replace(/{{MAIN_CONTENT}}/g,          '');
+
+  // ── AI tekst-felter ──
+  o = o.replace(/{{intro}}/g,                    esc(ai.intro));
+  o = o.replace(/{{worst_case_header}}/g,         esc(ai.worst_case_header));
+  o = o.replace(/{{WORST_CASE_HEADER}}/g,         esc(ai.worst_case_header));
+  o = o.replace(/{{worst_case_before_header}}/g,  esc(ai.worst_case_before_header));
+  o = o.replace(/{{worst_case_description}}/g,    esc(ai.worst_case_description));
+  o = o.replace(/{{WORST_CASE_DESCRIPTION}}/g,    esc(ai.worst_case_description));
+  o = o.replace(/{{process_header}}/g,            esc(ai.process_header));
+  o = o.replace(/{{PROCESS_HEADER}}/g,            esc(ai.process_header));
+  o = o.replace(/{{BEFORE_PAGE_TITLE}}/g,         esc(ai.before_page_title));
+  o = o.replace(/{{dream_big_before_header}}/g,   esc(ai.dream_big_before_header));
+  o = o.replace(/{{dream_big_header}}/g,          esc(ai.dream_big_header));
+  o = o.replace(/{{dream_header1}}/g,             esc(ai.dream_header1));
+  o = o.replace(/{{dream_description1}}/g,        esc(ai.dream_description1));
+  o = o.replace(/{{dream_header2}}/g,             esc(ai.dream_header2));
+  o = o.replace(/{{dream_description2}}/g,        esc(ai.dream_description2));
+  o = o.replace(/{{dream_header3}}/g,             esc(ai.dream_header3));
+  o = o.replace(/{{dream_description3}}/g,        esc(ai.dream_description3));
+  o = o.replace(/{{grunde_before_titel}}/g,       esc(ai.grunde_before_titel));
+  o = o.replace(/{{grunde_titel}}/g,              esc(ai.grunde_titel));
+  o = o.replace(/{{grund1_titel}}/g,              esc(ai.grund1_titel));
+  o = o.replace(/{{grund1_tekst}}/g,              esc(ai.grund1_tekst));
+  o = o.replace(/{{grund2_titel}}/g,              esc(ai.grund2_titel));
+  o = o.replace(/{{grund2_tekst}}/g,              esc(ai.grund2_tekst));
+  o = o.replace(/{{grund3_titel}}/g,              esc(ai.grund3_titel));
+  o = o.replace(/{{grund3_tekst}}/g,              esc(ai.grund3_tekst));
+  o = o.replace(/{{area_we_cover_description}}/g, esc(ai.area_we_cover_description));
+
+  // ── Byer i hero og cover ──
+  const cities   = getCities();
+  const cityList = cities.map(c => c.main).filter(Boolean);
+  const heroCities  = ai.hero_cities  || (cityList.length ? cityList.join(' • ') : '');
+  const coverCities = ai.cover_cities || heroCities;
+  o = o.replace(/{{hero_cities}}/g,    esc(heroCities));
+  o = o.replace(/{{cover_cities}}/g,   esc(coverCities));
+
+  // ── Process items → <li><strong>Header</strong> — tekst</li> ──
+  if (ai.process_items && ai.process_items.length) {
+    const liHtml = ai.process_items.map(function(item) {
+      // Format from Gemini: "**Header** — beskrivelse"
+      const m = item.match(/^\*\*(.+?)\*\*\s*[—\-]\s*(.+)$/);
+      if (m) {
+        return '<li><strong>' + esc(m[1]) + '</strong> — ' + esc(m[2]) + '</li>';
+      }
+      // Fallback: split on first " — "
+      const dash = item.indexOf(' — ');
+      if (dash > -1) {
+        return '<li><strong>' + esc(item.slice(0, dash)) + '</strong> — ' + esc(item.slice(dash + 3)) + '</li>';
+      }
+      return '<li>' + esc(item) + '</li>';
+    }).join('\n            ');
+    o = o.replace(/{{process_items}}/g, liHtml);
+  } else {
+    o = o.replace(/{{process_items}}/g, '');
+  }
+
+  // ── FAQ → accordion <details> items ──
+  if (ai.faq && ai.faq.length) {
+    const faqHtml = ai.faq.map(function(item) {
+      return '<details class="faq-item">\n' +
+        '      <summary>' + esc(item.q) + '<span class="faq-toggle">+</span></summary>\n' +
+        '      <div class="faq-ans"><p>' + esc(item.a) + '</p></div>\n' +
+        '    </details>';
+    }).join('\n    ');
+    o = o.replace(/{{faq_items}}/g, faqHtml);
+  } else {
+    o = o.replace(/{{faq_items}}/g, '');
+  }
+
+  // ── City placeholders (location grid + footer) ──
+  for (let i = 1; i <= 10; i++) {
+    o = o.replace(new RegExp(`\\{\\{Main_city${i}\\}\\}`, 'g'), esc(vars['mc'+i] || ''));
+    o = o.replace(new RegExp(`\\{\\{Main_city${i}_small_towns_list\\}\\}`, 'g'), esc(vars['st'+i] || ''));
+  }
+
+  // ── Ryd eventuelle resterende placeholders op ──
+  o = o.replace(/\{\{[^}]+\}\}/g, '');
+
+  return o;
+}
+
+function esc(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function buildCardJson(cities) {
+  const d = {
+    _comment: 'Ret kun denne fil for at opdatere hele sitet.',
+    _generated: new Date().toISOString().slice(0,10),
+    bizName:       g('bizName'),
+    city:          cities.map(c=>c.main).join(', '),
+    phone:         g('phone'),
+    ctaLink:       g('ctaLink'),
+    fbLink:        g('fbLink'),
+    youtubeLink:   g('youtubeLink'),
+    whatsappLink:  g('whatsappLink'),
+    instagramLink: g('instagramLink')
+  };
+  cities.forEach((c,i)=>{ d['mainCity'+(i+1)]=c.main; d['smallTowns'+(i+1)]=c.sub; });
+  return JSON.stringify(d,null,2);
+}
+
+
+const CARD_SCRIPT = `
+<script>
+(function(){
+  var C={
+    'cfg-bizName':{k:'bizName',t:'text'},
+    'cfg-city':{k:'city',t:'text'},
+    'cfg-phone':{k:'phone',t:'tel'},
+    'cfg-ctaLink':{k:'ctaLink',t:'link'},
+    'cfg-fbLink':{k:'fbLink',t:'link'}
+  };
+  function apply(d){
+    window._cardData=d;
+    Object.keys(C).forEach(function(cls){
+      var c=C[cls],v=d[c.k]||'';
+      document.querySelectorAll('.'+cls).forEach(function(el){
+        if(c.t==='tel'&&el.tagName==='A'){el.href='tel:'+v.replace(/\\s+/g,'');}
+        else if(c.t==='link'&&el.tagName==='A'){el.href=v;}
+        if(!el.children.length){el.textContent=v;}
+      });
+    });
+    var w=document.getElementById('footerSocial');
+    if(!w)return;
+    w.innerHTML='';
+    [{k:'fbLink',i:'fa-brands fa-facebook-f',l:'Facebook'},
+     {k:'youtubeLink',i:'fa-brands fa-youtube',l:'YouTube'},
+     {k:'whatsappLink',i:'fa-brands fa-whatsapp',l:'WhatsApp'},
+     {k:'instagramLink',i:'fa-brands fa-instagram',l:'Instagram'}
+    ].forEach(function(p){
+      var u=d[p.k];if(!u||!u.trim())return;
+      if(p.k==='whatsappLink'&&!u.startsWith('http')){u='https://wa.me/'+u.replace(/\\D/g,'');}
+      var a=document.createElement('a');
+      a.href=u;a.target='_blank';a.rel='noopener noreferrer';
+      a.setAttribute('aria-label',p.l);
+      a.innerHTML='<i class="'+p.i+'"></i>';
+      w.appendChild(a);
+    });
+  }
+  fetch('card.json?v='+Date.now())
+    .then(function(r){return r.json();})
+    .then(apply)
+    .catch(function(e){console.warn('[card.json]',e);});
+})();
+<\/script>`;
+
+
+function withCard(html){
+  return html.includes('</body>')
+    ? html.replace('</body>', CARD_SCRIPT + '\n</body>')
+    : html + CARD_SCRIPT;
+}
+
+
+// ── Run ──
+async function run(){
+  clearLog();
+  const btn = document.getElementById('genBtn');
+  const msg = document.getElementById('statusMsg');
+  const prog = document.getElementById('prog');
+  const fill = document.getElementById('progFill');
+
+  if(!tmpl){ msg.className='status-txt err'; msg.textContent='✗ Upload en template først (sektion 6)'; return; }
+  const cities = getCities();
+  const svcs = g('servicesList').split('\n').map(function(s){ return s.trim(); }).filter(Boolean);
+  if(!svcs.length){ msg.className='status-txt err'; msg.textContent='✗ Tilføj mindst én service (sektion 5)'; return; }
+
+  const bizName=g('bizName'), mainSvc=g('mainService'), phone=g('phone'),
+    ctaLink=g('ctaLink'), fbLink=g('fbLink'), yt=g('youtubeLink'),
+    wa=g('whatsappLink'), ig=g('instagramLink'), area=g('geoArea'),
+    slogan=g('slogan'), hkw=g('homepageKeyword')||mainSvc||bizName||'Forside',
+    zipN=g('zipName');
+
+  const total = 2 + svcs.length;
+  let done = 0;
+  function tick(label){
+    done++;
+    const pct = Math.min(Math.round(done/total*100),100);
+    fill.style.width = pct + '%';
+    msg.textContent = label + ' (' + pct + '%)';
+  }
+
+  btn.disabled = true;
+  prog.classList.add('on');
+  fill.style.width = '0%';
+  msg.className = 'status-txt';
+  msg.textContent = 'Initialiserer…';
+
+  const primaryCity = cities[0] ? cities[0].main : area || '';
+  const primarySub  = cities[0] ? cities[0].sub  : '';
+
+  const gv = {
+    bizName, slogan, phone, ctaLink, fbLink,
+    area,
+    svcArea: (mainSvc||bizName) + (area ? ' — '+area : ''),
+  };
+  for(let i=1;i<=10;i++){
+    gv['mc'+i] = cities[i-1] ? cities[i-1].main : '';
+    gv['st'+i] = cities[i-1] ? cities[i-1].sub  : '';
+  }
+
+  const zip = new JSZip();
+
+  try {
+    // card.json
+    addLog('Genererer card.json…','info');
+    zip.file('card.json', buildCardJson(cities));
+    tick('card.json ✓');
+    addLog('card.json','ok');
+
+    // Forside
+    addLog('Genererer forside: ' + hkw, 'info');
+    let homeAI;
+    try { homeAI = await callGemini(hkw, primaryCity, primarySub); }
+    catch(e){ addLog('Gemini fejl: '+e.message,'err'); homeAI = await callGemini(hkw, primaryCity, primarySub); }
+    zip.file('index.html', withCard(injectTemplate(tmpl, { ...gv, pageTitle: hkw+(bizName?' | '+bizName:'') }, homeAI)));
+    tick('index.html ✓');
+    addLog('index.html','ok');
+
+    // Service sider
+    for(let i=0; i<svcs.length; i++){
+      const svc = svcs[i];
+      const filename = slug(svc) + '.html';
+      addLog('Genererer: '+svc+' → '+filename, 'info');
+      let ai;
+      try { ai = await callGemini(svc, primaryCity, primarySub); }
+      catch(e){ addLog('Fejl ('+filename+'): '+e.message,'err'); ai = await callGemini(svc, primaryCity, primarySub); }
+      zip.file(filename, withCard(injectTemplate(tmpl, { ...gv, city: primaryCity, pageTitle: svc+(bizName?' | '+bizName:'') }, ai)));
+      tick(filename+' ✓');
+      addLog(filename,'ok');
+    }
+
+    // ZIP
+    addLog('Komprimerer…','info');
+    const blob = await zip.generateAsync({type:'blob',compression:'DEFLATE'});
+    const ts = new Date().toISOString().slice(0,10);
+    const name = slug(zipN||bizName||'seo-site')+'-'+ts+'.zip';
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download=name;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    const np = 1 + svcs.length;
+    msg.className='status-txt ok';
+    msg.textContent='✓ '+name+' — '+np+' sider + card.json';
+    addLog('Færdig! '+np+' sider genereret.','ok');
+  } catch(e){
+    msg.className='status-txt err'; msg.textContent='✗ '+e.message;
+    addLog('FEJL: '+e.message,'err');
+    console.error(e);
+  } finally {
+    btn.disabled=false;
+  }
+}
+
+// Init
+addCity();
+updateDots();
+</script>
+</body>
+</html>
